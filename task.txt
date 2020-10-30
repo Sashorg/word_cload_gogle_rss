@@ -1,0 +1,40 @@
+import bs4
+from bs4 import BeautifulSoup as soup
+from urllib.request import urlopen
+import  re
+from wordcloud import WordCloud
+from PIL import Image
+import matplotlib.pyplot as plt
+from collections import defaultdict
+news_url="https://news.google.com/rss/topics/CAAqBwgKMLuN-wowjpnzAg?hl=en-US&gl=US&ceid=US:en"
+Client=urlopen(news_url)
+xml_page=Client.read()
+Client.close()
+
+soup_page=soup(xml_page,"xml")
+news_list=soup_page.findAll("item")
+# Print news title, url and publish date
+word_list={}
+for news in news_list:
+# Clean up the words a little bit
+  no_title_prep=(news.title.text).split('-')
+  no_title=no_title_prep[0:-1]
+  final_no_title=' '.join(no_title)
+  print(final_no_title)
+  m = re.findall('[a-zA-Z.][a-zA-Z.][a-zA-Z]+', final_no_title)
+  #print(m)
+  for i in m:
+
+    if i not in word_list:
+
+        word_list.setdefault(i)
+        word_list[i] = 1
+
+    else:
+
+        word_list[i] += 1;
+
+print(word_list)
+wc = WordCloud(background_color="white",width=1000,height=1000, max_words=50,relative_scaling=0.5,normalize_plurals=False).generate_from_frequencies(word_list)
+plt.imshow(wc)
+plt.show()
